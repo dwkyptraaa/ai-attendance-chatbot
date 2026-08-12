@@ -1,0 +1,40 @@
+# ---------- Kredensial & rahasia (JANGAN commit!) ----------
+.env
+service_account.json
+credentials.json
+Credentials.txt
+*.key
+*.pem
+
+# ---------- Data pribadi / privasi ----------
+# Foto wajah asli tidak boleh masuk repository publik.
+# Simpan dataset asli di luar repo, atau pakai private repo terpisah.
+face-recognition/dataset_wajah/**/*
+!face-recognition/dataset_wajah/**/README.md
+!face-recognition/dataset_wajah/**/.gitkeep
+face-recognition/trained_models/*
+!face-recognition/trained_models/.gitkeep
+
+# ---------- Runtime ----------
+detected/
+__pycache__/
+*.pyc
+*.pkl
+*.pickle
+
+# ---------- Data container Docker ----------
+n8n_data/
+waha_data/
+
+# ---------- OS / Editor ----------
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+.DS_Store
+
+# ---------- Python ----------
+venv/
+.venv/
+env/
+*.egg-info/

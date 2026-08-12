@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case Study — AI Attendance Chatbot | Dwicky</title>
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --bg-2: #111827;
+    --card: #151d30;
+    --border: #243049;
+    --text: #e5e9f2;
+    --muted: #94a3b8;
+    --accent: #22d3ee;
+    --accent-2: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== Hero ===== */
+  .hero {
+    padding: 80px 0 48px;
+    text-align: center;
+    background:
+      radial-gradient(800px 300px at 20% -10%, rgba(34,211,238,.15), transparent),
+      radial-gradient(800px 300px at 80% -10%, rgba(167,139,250,.15), transparent);
+  }
+  .hero .tag {
+    display: inline-block; font-size: 13px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 16px; margin-bottom: 20px; background: rgba(34,211,238,.06);
+  }
+  .hero h1 { font-size: clamp(1.7rem, 4.5vw, 2.6rem); line-height: 1.25; margin-bottom: 14px; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.sub { color: var(--muted); max-width: 640px; margin: 0 auto 24px; }
+  .hero .meta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 13px; color: var(--muted);
+    border: 1px solid var(--border); background: var(--card);
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .btn-row { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 12px 24px; border-radius: 10px;
+    text-decoration: none; font-weight: 600; font-size: 15px;
+  }
+  .btn-primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #0b0f1a; }
+  .btn-ghost { border: 1px solid var(--border); color: var(--text); background: var(--card); }
+
+  /* ===== Section ===== */
+  section { padding: 56px 0; }
+  section.alt { background: var(--bg-2); }
+  h2 {
+    font-size: 1.5rem; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .num {
+    width: 32px; height: 32px; border-radius: 8px; flex: 0 0 auto;
+    display: grid; place-items: center; font-size: 15px; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0b0f1a;
+  }
+  .sec-desc { color: var(--muted); margin-bottom: 28px; }
+
+  /* ===== Problem / Solution ===== */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .card h3 { font-size: 1.02rem; margin-bottom: 10px; }
+  .card ul { list-style: none; }
+  .card li { padding: 6px 0 6px 26px; position: relative; color: #cbd5e1; font-size: .95rem; }
+  .card li::before {
+    content: ""; position: absolute; left: 4px; top: 14px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .card.problem li::before { background: var(--red); }
+  .card.solution li::before { background: var(--green); }
+
+  /* ===== Architecture ===== */
+  .arch { display: grid; gap: 10px; }
+  .arch-node {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .arch-node .icon { font-size: 22px; flex: 0 0 auto; }
+  .arch-node b { display: block; font-size: .95rem; }
+  .arch-node p { color: var(--muted); font-size: .85rem; }
+  .arch-arrow { text-align: center; color: var(--accent); font-size: 16px; }
+
+  /* ===== Metrics ===== */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .metric {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; text-align: center;
+  }
+  .metric .value {
+    font-size: 2rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .metric .label { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+  /* ===== Tech ===== */
+  .tech { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tech .t {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 16px; font-size: .9rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ===== Screenshots ===== */
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .shot {
+    aspect-ratio: 3/4; border-radius: 12px;
+    background: var(--card); border: 1px dashed var(--border);
+    display: grid; place-items: center; color: var(--muted); font-size: .85rem;
+    text-align: center; padding: 12px;
+    background-size: cover; background-position: center;
+  }
+  .shot img { display: none; }
+
+  /* ===== Features ===== */
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .feature {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+  }
+  .feature b { display: block; font-size: .95rem; margin-bottom: 4px; }
+  .feature span { color: var(--muted); font-size: .88rem; }
+  .feature code {
+    background: rgba(34,211,238,.1); color: var(--accent);
+    padding: 2px 7px; border-radius: 6px; font-size: .82rem;
+  }
+
+  footer { text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: .85rem; }
+
+  @media (max-width: 720px) {
+    .two-col, .features { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .shots { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">Skripsi · Sistem Informasi · UIN Alauddin Makassar</span>
+    <h1>AI Attendance Chatbot —<br /><span>Face Recognition + n8n + WhatsApp</span></h1>
+    <p class="sub">
+      Sistem kehadiran otomatis berbasis CCTV yang mengidentifikasi wajah pegawai &amp; mahasiswa secara real-time,
+      lalu menyebarkan informasi kehadiran melalui chatbot WhatsApp AI — tanpa menunggu respon manual.
+    </p>
+    <div class="meta">
+      <span class="chip">📅 2026</span>
+      <span class="chip">🎯 Akurasi 86,16%</span>
+      <span class="chip">⚡ Latensi 15,9 dtk</span>
+      <span class="chip">🤖 Gemini 2.5 Flash</span>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://github.com/dwicky/ai-attendance-chatbot" target="_blank" rel="noopener">Lihat Source Code</a>
+      <a class="btn btn-ghost" href="#hasil">Hasil &amp; Evaluasi</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PROBLEM & SOLUTION ================= -->
+<section>
+  <div class="wrap">
+    <h2><span class="num">1</span> Masalah</h2>
+    <p class="sec-desc">Konteks nyata di lingkungan akademik.</p>
+    <div class="two-col">
+      <div class="card problem">
+        <h3>❓ Situasi</h3>
+        <ul>
+          <li>Mahasiswa menunggu kepastian kehadiran dosen/pegawai untuk bimbingan skripsi.</li>
+          <li>Mengandalkan pesan singkat → respon lambat karena kesibukan pihak dihubungi.</li>
+          <li>Informasi kehadiran tidak real-time dan bergantung manusia.</li>
+        </ul>
+      </div>
+      <div class="card solution">
+        <h3>💡 Solusi</h3>
+        <ul>
+          <li>CCTV + face recognition (InsightFace + MediaPipe) mendeteksi kehadiran otomatis.</li>
+          <li>Data tersimpan otomatis ke Google Sheets + bukti foto di Google Drive.</li>
+          <li>n8n mengorkestrasi alur &mdash; AI Agent (Gemini) menyampaikan info via WhatsApp.</li>
+          <li>Chatbot: cek kehadiran, bukti foto, dan request notifikasi otomatis.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARSITEKTUR ================= -->
+<section class="alt">
+  <div class="wrap">
+    <h2><span class="num">2</span> Arsitektur Sistem</h2>
+    <p class="sec-desc">Alur data dari kamera CCTV hingga WhatsApp pengguna.</p>
+    <div class="arch">
+      <div class="arch-node"><span class="icon">📹</span><div><b>Kamera CCTV (RTSP)</b><p>Tenda RP3-393A — stream video real-time ke modul Python.</p></div></div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node"><span class="icon">🐍</span><div><b>Modul Face Recognition (Python)</b><p>MediaPipe mendeteksi wajah → InsightFace (Buffalo_L) ekstraksi embedding 512D → Euclidean distance vs dataset → Known/Unknown.</p></div></div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node"><span class="icon">☁️</span><div><b>Google Sheets + Drive</b><p>Nama, status, waktu &amp; link foto bukti tersimpan otomatis via Service Account.</p></div></div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node"><span class="icon">⚙️</span><div><b>n8n (Docker)</b><p>Google Sheets Trigger → AI Agent + Gemini 2.5 Flash → HTTP Request ke WAHA API.</p></div></div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node"><span class="icon">💬</span><div><b>WAHA — WhatsApp HTTP API (Docker)</b><p>Gateway WhatsApp Web (scan QR) — menerima pesan user &amp; mengirim notifikasi.</p></div></div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-node"><span class="icon">📱</span><div><b>Pengguna</b><p>Cek kehadiran, lihat bukti foto, atau request notifikasi ketika seseorang terdeteksi.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METRIK ================= -->
+<section id="hasil">
+  <div class="wrap">
+    <h2><span class="num">3</span> Hasil &amp; Evaluasi</h2>
+    <p class="sec-desc">Pengujian black-box terhadap 419 sampel deteksi (TP=86, FP=20, FN=38, TN=275).</p>
+    <div class="metrics">
+      <div class="metric"><div class="value">86,16%</div><div class="label">Akurasi</div></div>
+      <div class="metric"><div class="value">81,13%</div><div class="label">Presisi</div></div>
+      <div class="metric"><div class="value">69,35%</div><div class="label">Recall</div></div>
+      <div class="metric"><div class="value">74,78%</div><div class="label">F1-Score</div></div>
+    </div>
+    <p class="sec-desc" style="margin-top:24px;">
+      ⏱️ Rata-rata <b>total latency 15,9 detik</b> (deteksi CCTV → notifikasi WhatsApp diterima),
+      dengan respon otomatisasi chatbot hanya <b>9,3 detik</b>. TN yang tinggi (275) membuktikan
+      sistem andal menolak wajah tak terdaftar.
+    </p>
+  </div>
+</section>
+
+<!-- ================= TEKNOLOGI ================= -->
+<section>
+  <div class="wrap">
+    <h2><span class="num">4</span> Teknologi</h2>
+    <p class="sec-desc">Stack yang digunakan end-to-end.</p>
+    <div class="tech">
+      <span class="t">🐍 Python 3.10</span>
+      <span class="t">👁️ InsightFace</span>
+      <span class="t">🎯 MediaPipe</span>
+      <span class="t">🖼️ OpenCV</span>
+      <span class="t">⚙️ n8n</span>
+      <span class="t">🐳 Docker</span>
+      <span class="t">🤖 Gemini 2.5 Flash</span>
+      <span class="t">💬 WAHA (WhatsApp API)</span>
+      <span class="t">🌐 Ngrok</span>
+      <span class="t">📊 Google Sheets / Drive API</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FITUR CHATBOT ================= -->
+<section class="alt">
+  <div class="wrap">
+    <h2><span class="num">5</span> Fitur Chatbot WhatsApp</h2>
+    <p class="sec-desc">Interaksi dalam bahasa Indonesia santai — dipahami meski informal.</p>
+    <div class="features">
+      <div class="feature"><b>Cek kehadiran</b><span>Contoh: <code>cek kehadiran</code> → daftar siapa yang sudah hadir hari ini</span></div>
+      <div class="feature"><b>Cek status per orang</b><span>Contoh: <code>apakah Pak Rahman sudah hadir?</code></span></div>
+      <div class="feature"><b>Bukti foto</b><span>Ketik nama → dikirim link foto tangkapan CCTV dari Google Drive</span></div>
+      <div class="feature"><b>Request notifikasi</b><span>Contoh: <code>kabari saya kalau Budi terdeteksi</code> → disimpan ke antrian notifikasi</span></div>
+      <div class="feature"><b>Pemetaan nama fuzzy</b><span><code>frida</code> → Farida Yusuf, <code>ady</code> → Adhy Rizaldy (abaikan typo &amp; panggilan)</span></div>
+      <div class="feature"><b>Anti-ambiguity</b><span>Pesan tidak bermakna → balasan "Maaf, saya tidak mengerti maksud Anda"</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCREENSHOTS ================= -->
+<section>
+  <div class="wrap">
+    <h2><span class="num">6</span> Tampilan Sistem</h2>
+    <p class="sec-desc">
+      Screenshot percakapan chatbot &amp; deteksi CCTV. Ganti placeholder di bawah dengan file gambar Anda,
+      misal <code>portfolio/images/chat-1.png</code> dan ubah CSS <code>.shot { background-image: ... }</code>.
+    </p>
+    <div class="shots">
+      <div class="shot">📸<br />Screenshot 1<br /><small>(chatbot cek kehadiran)</small></div>
+      <div class="shot">📸<br />Screenshot 2<br /><small>(bukti foto kehadiran)</small></div>
+      <div class="shot">📸<br />Screenshot 3<br /><small>(notifikasi otomatis)</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LESSONS ================= -->
+<section class="alt">
+  <div class="wrap">
+    <h2><span class="num">7</span> Tantangan &amp; Pembelajaran</h2>
+    <p class="sec-desc">Apa yang saya pelajari dari membangun sistem ini.</p>
+    <div class="card">
+      <ul>
+        <li><b>Stabilitas RTSP di WiFi</b> — transport TCP + grab-drain pattern + auto-reconnect menyelesaikan masalah frame freeze acak.</li>
+        <li><b>Multi-threading pengenalan</b> — antrian thread + centroid tracker menjaga FPS real-time tanpa memblokir main loop.</li>
+        <li><b>Angka vs lingkungan nyata</b> — recall 69% menunjukkan sudut pandang wajah (menunduk) &amp; koneksi internet masih membatasi, bukan sekadar masalah algoritma.</li>
+        <li><b>Workflow automation efektif</b> — n8n menurunkan latensi distribusi informasi menjadi ~9 detik dari sinkronisasi data.</li>
+        <li><b>Keamanan kredensial</b> — semua kredensial dipindah ke environment variables dan repo dipublikasikan tanpa data biometrik &amp; foto asli.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Skripsi: <b>"Implementasi AI Agent berbasis Chatbot untuk Sistem Kehadiran Pegawai dan Mahasiswa dengan Integrasi Face Recognition dan N8N"</b><br />
+  Muh. Dwicky P. Sanjaya · UIN Alauddin Makassar · 2026
+</footer>
+
+</body>
+</html>

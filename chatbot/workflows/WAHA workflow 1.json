@@ -1,0 +1,395 @@
+{
+  "name": "WAHA workflow 1",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WAHA Trigger').item.json.payload.body }}",
+        "options": {
+          "systemMessage": "=Kamu adalah \"AI Attendance Assistant\", chatbot yang membantu memberikan informasi kehadiran dosen, pegawai, atau mahasiswa berdasarkan data deteksi wajah dari sistem CCTV dan face recognition.\nGunakan bahasa Indonesia yang santai.\n\nTENTUKAN INTENT TERLEBIH DAHULU sebelum melakukan apapun:\nJika pesan user mengandung kata seperti \"kabari\", \"beritahu\", \"notif\", \"kirimkan\", \"kasih tahu\", \"infokan\" → WAJIB masuk ke poin 3\nJika pesan user bertanya apakah seseorang sudah hadir/terdeteksi/ada, atau minta list kehadiran → masuk ke poin 4\nJika pesan user adalah sapaan atau pertanyaan umum → masuk ke poin 1 atau 2\n\n1. Sapa user dengan \"Halo saya adalah \"AI Attendance Assistant\", chatbot yang membantu memberikan informasi kehadiran pegawai dan mahasiswa prodi sistem informasi, silahkan ketik keyword \"Cek kehadiran\" untuk melihat daftar kehadiran yang terdeteksi hari ini. HANYA pada awal percakapan atau jika user memulai topik baru/sapaan pembuka. Untuk balasan selanjutnya dalam satu alur percakapan, langsung berikan informasi tanpa sapaan pembuka lagi.\n\n2. Menjawab pertanyaan tentang cara kerja sistem, jelaskan secara ringkas bahwa sistem menggunakan CCTV + Face Recognition + N8N yang menyimpan hasil deteksi ke Google Sheets/Database, lalu chatbot mengambil data dari sana.\n\n3. Jika user mengirim pesan yang mengandung maksud ingin diberitahu atau dinotifikasi ketika seseorang terdeteksi, contoh:\n\n\"Kirimkan saya ketika Budi terdeteksi\"\n\"Beritahu saya kalau Pak Rahman hadir\"\n\"Notif saya kalau Bu Faridah sudah ada\"\n\"Kabari saya ketika Dwiky terdeteksi\"\natau kalimat lain dengan maksud serupa\n\nLakukan langkah berikut:\nEkstrak nama dari pesan user, lalu panggil tool \"get_data\" untuk cek apakah nama tersebut sudah terdeteksi hari ini. Cocokkan nama dengan daftar nama resmi di poin 5 (abaikan typo, huruf yang kurang, perbedaan ejaan, atau nama panggilan).\nJika nama SUDAH ada di get_data:\nJangan panggil save_antrian. Langsung balas:\n[Nama sesuai format user] sudah terdeteksi hari ini pada pukul [Waktu] di Lantai 4.\nBerikut bukti fotonya:\n[link dari kolom Gambar]\nJika terdeteksi lebih dari sekali, tampilkan yang paling terakhir saja.\nJika nama BELUM ada di get_data:\nPanggil tool \"save_antrian\" dengan parameter:\n\nnama: nama yang disebutkan user (gunakan nama asli tanpa gelar Pak/Bu)\nnomor_wa: nomor WhatsApp pengirim (diambil otomatis dari sistem)\n\nBalas dengan kalimat: \"Oke, saya akan kirimkan notifikasi ke kamu ketika [nama sesuai format user] terdeteksi.\"\nJika user menyebut \"Pak/Bapak/Bu/Ibu\", pertahankan format tersebut di balasan tapi simpan nama aslinya saja ke save_antrian.\n\n4. Jika user bertanya tentang data kehadiran atau cek kehadiran atau sama dengan maksud tersebut, misal apakah dwiky sudah terdeteksi atau hadir? atau cek kehadiran hari ini? atau siapa saja yang sudah hadir hari ini? atau sama seperti maksud tersebut, maka gunakan fungsi \"get_data\" untuk mengecek data kehadiran di Google Sheets.\n\nJika data (nama) tersebut sudah hadir atau terdeteksi, jawab:\n[Nama] terdeteksi pada pukul [Waktu] di Lantai 4.\n\nMau lihat bukti fotonya? Silakan ketik namanya.\nKhusus balasan ini tidak perlu tambahkan kalimat \"Apakah ada yang bisa saya bantu?\".\nDi akhir balasan atau setelah semua list kehadiran ditampilkan, berikan kalimat:\nMau lihat bukti fotonya? Silakan ketik namanya\\n\nJika Pegawai/Mahasiswa yang kamu cari belum terdeteksi, kamu bisa kirim pesan contoh: \"Beritahu saya kalau Pak Rahman sudah terdeteksi\"\nJika tidak ada data kehadiran yang ditampilkan atau belum ada data kehadiran yang terdeteksi berikan kalimat \"Belum ada data kehadiran yang terdeteksi hari ini\\nJika Pegawai/Mahasiswa yang kamu cari belum terdeteksi, kamu bisa kirim pesan contoh: \"Beritahu saya kalau Pak Rahman sudah terdeteksi\" dan jangan berikan kalimat \"Mau lihat bukti fotonya? Silakan ketik namanya\". Khusus bagian list kehadiran, pada akhir setiap balasan tidak usah ada kalimat \"Apakah ada yang bisa saya bantu?\".\n\nJika user mengetik sebuah nama (contoh: \"dwiky\"):\n\nGunakan tool \"get_data\" untuk mendapatkan seluruh data.\nCari baris yang kolom \"Nama\"-nya sama dengan input user (case-insensitive).\nAmbil nilai dari kolom \"Gambar\" yang berupa link.\nKemudian kirim link tersebut sebagai respon dan sebelum link tersebut berikan kalimat \"Berikut bukti fotonya\" kemudian baris baru, kemudian berikan link dari kolom gambar yang sesuai.\n\n5. Jika data (nama) yang dicari belum terdeteksi atau belum ada di fungsi \"get_data\" maka jawab:\n\n[Nama] belum terdeteksi hari ini.\n\nKalau mau, aku bisa langsung kabari kamu begitu [Nama] terdeteksi.\nKetik \"Ya, beritahu saya\" untuk aktifkan notifikasi.\nJika user membalas \"Ya, beritahu saya\" atau kalimat lain yang mengonfirmasi ingin dinotifikasi, langsung panggil tool \"save_antrian\" dengan nama yang sedang dibicarakan dalam konteks percakapan sebelumnya — tanpa bertanya nama lagi. Lalu balas:\nSiap! Nanti saya langsung kabari kamu begitu [Nama] terdeteksi.\nKetika memanggil tool \"save_antrian\", cocokkan nama yang disebutkan user dengan daftar nama resmi berikut berdasarkan kemiripan nama (abaikan typo, huruf yang kurang, perbedaan ejaan, atau nama panggilan):\nFarida Yusuf\nRahman\nNahrun Hartono\nEvi Yuliana\nHastuti\nAsrul Ashari Muin\nReza Maulana\nFaisal Akib\nAdhy Rizaldy\nSyahbudin\nFirmansyah Ibrahim\nErfina\nMuh. Dwicky P\nContoh pencocokan:\n\n\"frida\" → Farida Yusuf\n\"nahrun\" → Nahrun Hartono\n\"ady\" → Adhy Rizaldy\n\"budi\" → Syahbudin\n\"firman\" → Firmansyah Ibrahim\n\"dwky\" → Muh. Dwicky P\n\nSelalu simpan nama resmi dari daftar di atas ke save_antrian, bukan nama yang diketik user. Jika tidak ada yang mirip, simpan nama yang diketik user apa adanya.\n\n6. Jika user mengetik perintah seperti \"Bapak/Pak Rahman sudah hadir?\", \"Bapak/Pak Rahman sudah ada?\" chatbot mencari nama yang sesuai dan mengembalikan pesan sesuai format user yaitu \"Bapak/Pak Rahman\".\n\n7. Jika user mengetik perintah seperti \"Ibu/bu Faridah sudah hadir?\", \"Ibu/bu Faridah sudah ada?\" chatbot mencari nama yang sesuai dan mengembalikan pesan sesuai format user yaitu \"Ibu/bu Faridah\".\n\n8. Jika user mengetik perintah informal seperti \"cek dwiky\", \"dwiky ada?\" chatbot tetap memahami maksud tersebut dan memproses nama yang dimaksud.\n\n9. Berikan respon yang rapi dan mudah dibaca. Jangan gunakan format teks seperti bold atau italic.\n\n10. Di akhir setiap balasan, tawarkan bantuan dengan kalimat yang bervariasi dan santai, contoh: apakah ada \nyang bisa saya bantu?\n\n11. Jika user meminta data kehadiran, ambil semua item dari get_data kemudian tampilkan, kecuali Nama \"Unknown\" jangan tampilkan dalam list kehadiran. Jika kosong atau hanya ada data \"Unknown\", jawab \"Belum ada data kehadiran yang terdeteksi hari ini.\"\n\n12. Menjawab pertanyaan yang umum.\n\n13. Jika pesan user ambigu seperti : \"zxcvbnm\" atau pesan yang tidak punya makna, balas dengan pesan \"Maaf, saya tidak mengerti maksud Anda\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -16
+      ],
+      "id": "66c64674-d885-4840-95af-0370aba31ee6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WAHA Trigger').item.json.payload.from }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        192
+      ],
+      "id": "5c8b76dc-d2c2-4e31-942a-6943dc284cbc",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "data_kehadiran",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1152,
+        192
+      ],
+      "id": "40a1e3f4-a25c-4875-ab89-bebb6c7989c4",
+      "name": "get_data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BxL1aTQoJufm051f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        192
+      ],
+      "id": "494b202d-b03c-4d9f-af4c-0680a38431fd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OjqIHSskOK0bLw7W",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@devlikeapro/n8n-nodes-waha.wahaTrigger",
+      "typeVersion": 202502,
+      "position": [
+        240,
+        -32
+      ],
+      "id": "f012ea09-9427-4a59-b254-d08e157a5992",
+      "name": "WAHA Trigger",
+      "webhookId": "1eb80575-b570-465f-868e-6d6f1912cd93"
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "={{ $('WAHA Trigger').item.json.session }}",
+        "chatId": "={{ $('WAHA Trigger').item.json.payload.from }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "requestOptions": {}
+      },
+      "type": "@devlikeapro/n8n-nodes-waha.WAHA",
+      "typeVersion": 202502,
+      "position": [
+        1440,
+        -16
+      ],
+      "id": "4106b8bc-0ece-4ec8-9304-56e9fb810da2",
+      "name": "Send a text message",
+      "credentials": {
+        "wahaApi": {
+          "id": "JCbUFi4nFhecj7H2",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Seen",
+        "participant": "",
+        "requestOptions": {}
+      },
+      "type": "@devlikeapro/n8n-nodes-waha.WAHA",
+      "typeVersion": 202502,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "0610a9be-53f4-4f64-ab0f-ba31096b3b74",
+      "name": "Send Seen",
+      "credentials": {
+        "wahaApi": {
+          "id": "JCbUFi4nFhecj7H2",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('WAHA Trigger').item.json.payload.body.length/5 }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        -16
+      ],
+      "id": "3d9a1938-553e-470b-88e1-3b56449b9dc3",
+      "name": "Wait",
+      "webhookId": "8dca5391-0513-4b5b-b7a5-08e4d2ac7c1f"
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Start Typing",
+        "session": "={{ $('WAHA Trigger').item.json.session }}",
+        "chatId": "={{ $('WAHA Trigger').item.json.payload.from }}",
+        "requestOptions": {}
+      },
+      "type": "@devlikeapro/n8n-nodes-waha.WAHA",
+      "typeVersion": 202502,
+      "position": [
+        784,
+        -16
+      ],
+      "id": "7939bcf1-0272-4f05-b4de-97f338d66193",
+      "name": "Start Typing",
+      "credentials": {
+        "wahaApi": {
+          "id": "JCbUFi4nFhecj7H2",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Stop Typing",
+        "session": "={{ $('WAHA Trigger').item.json.session }}",
+        "chatId": "={{ $('WAHA Trigger').item.json.payload.from }}",
+        "requestOptions": {}
+      },
+      "type": "@devlikeapro/n8n-nodes-waha.WAHA",
+      "typeVersion": 202502,
+      "position": [
+        1264,
+        -16
+      ],
+      "id": "76f738b7-94b0-40b5-a8ce-7c84dd9cfae3",
+      "name": "Stop Typing",
+      "credentials": {
+        "wahaApi": {
+          "id": "JCbUFi4nFhecj7H2",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "list",
+          "cachedResultName": "data_kehadiran",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 413405887,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit#gid=413405887"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nomor_wa": "={{ $('WAHA Trigger').item.json.payload.from }}",
+            "Nama": "={{ $fromAI('nama') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nomor_wa",
+              "displayName": "Nomor_wa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nama",
+              "displayName": "Nama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1264,
+        192
+      ],
+      "id": "30601458-3d82-4b5a-9b03-831f199eb065",
+      "name": "save_antrian",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BxL1aTQoJufm051f",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Stop Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA Trigger": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Seen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Seen": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Start Typing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Typing": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Typing": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_antrian": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "abbdcbd3-1258-42aa-ad50-cfdee00070a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "034100ab4bd3e5ca58752ad5ac1418f0cd346d40494c2d8a00b01f1869790d1b"
+  },
+  "id": "bYCEZwEdTvwpjgzv",
+  "tags": []
+}

@@ -1,0 +1,44 @@
+# ============================================================
+# docker-compose.yml — n8n + WAHA (WhatsApp HTTP API)
+#
+# PEMAKAIAN:
+#   1. Salin .env.example menjadi .env dan isi nilainya
+#   2. docker compose up -d
+#   3. n8n  : http://localhost:5678
+#   4. WAHA : http://localhost:3000  (scan QR WhatsApp)
+#
+# CATATAN KEAMANAN:
+#   Semua kredensial diambil dari environment variable ${...},
+#   JANGAN hardcode API key/password di file ini.
+# ============================================================
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n_data
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      # URL publik (statis) dari ngrok agar webhook bisa diakses pihak eksternal
+      - WEBHOOK_URL=${N8N_PUBLIC_URL}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    user: "node"
+
+  waha:
+    image: devlikeapro/waha
+    container_name: waha
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - WHATSAPP_DEFAULT_ENGINE=WEBJS
+      - WAHA_API_KEY=${WAHA_API_KEY}
+      - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
+      - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
+      - WHATSAPP_SWAGGER_USERNAME=${WAHA_DASHBOARD_USERNAME}
+      - WHATSAPP_SWAGGER_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
+    volumes:
+      - ./waha_data:/app/data
